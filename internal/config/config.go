@@ -36,17 +36,7 @@ func Read() (Config, error) {
 func (c *Config) SetUser(userName string) error {
 	c.CurrentUserName = userName
 
-	newConfig := Config{
-		DbURL:           c.DbURL,
-		CurrentUserName: c.CurrentUserName,
-	}
-
-	err := write(newConfig)
-	if err != nil {
-		return fmt.Errorf("error writing to config file: %w", err)
-	}
-
-	return nil
+	return write(*c)
 }
 
 func getConfigFilePath() (string, error) {
@@ -69,7 +59,7 @@ func write(config Config) error {
 		return fmt.Errorf("error getting file path: %w", err)
 	}
 
-	err = os.WriteFile(configFilePath, data, 0666)
+	err = os.WriteFile(configFilePath, data, 0600)
 	if err != nil {
 		return fmt.Errorf("error writing to file: %w", err)
 	}
