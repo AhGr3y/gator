@@ -16,18 +16,18 @@ type Config struct {
 func Read() (Config, error) {
 	configFilePath, err := getConfigFilePath()
 	if err != nil {
-		return Config{}, fmt.Errorf("error getting file path: %w", err)
+		return Config{}, fmt.Errorf("error getting config file path: %w", err)
 	}
 
 	data, err := os.ReadFile(configFilePath)
 	if err != nil {
-		return Config{}, fmt.Errorf("error reading file: %w", err)
+		return Config{}, err
 	}
 
 	var config Config
 	err = json.Unmarshal(data, &config)
 	if err != nil {
-		return Config{}, fmt.Errorf("error unmarshalling json: %w", err)
+		return Config{}, err
 	}
 
 	return config, nil
@@ -42,26 +42,27 @@ func (c *Config) SetUser(userName string) error {
 func getConfigFilePath() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		return "", fmt.Errorf("error getting user home dir: %w", err)
+		return "", err
 	}
 
 	return homeDir + "/" + configFileName, nil
 }
 
 func write(config Config) error {
-	data, err := json.Marshal(config)
-	if err != nil {
-		return fmt.Errorf("error marshalling json: %w", err)
-	}
-
 	configFilePath, err := getConfigFilePath()
 	if err != nil {
-		return fmt.Errorf("error getting file path: %w", err)
+		return fmt.Errorf("error getting config file path: %w", err)
 	}
 
-	err = os.WriteFile(configFilePath, data, 0600)
+	f, err := os.Create(configFilePath)
 	if err != nil {
-		return fmt.Errorf("error writing to file: %w", err)
+		return err
+	}
+	defer f.Close()
+
+	encoder := json.NewEncoder(f)
+	if err := encoder.Encode(config); err != nil {
+		return err
 	}
 
 	return nil

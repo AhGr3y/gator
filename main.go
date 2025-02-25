@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/AhGr3y/gator/internal/config"
 )
@@ -11,14 +12,14 @@ func main() {
 		DbURL: "postgres://example",
 	}
 
-	err := cfg.SetUser("Johnny Duo")
+	err := cfg.SetUser("Lane Wagner")
 	if err != nil {
-		fmt.Printf("error setting user: %v\n", err)
+		log.Fatalf("error setting user: %v\n", err)
 	}
 
 	config, err := config.Read()
 	if err != nil {
-		fmt.Printf("error reading config: %v\n", err)
+		log.Fatalf("error reading config: %v\n", err)
 	}
 
 	fmt.Println(config)
