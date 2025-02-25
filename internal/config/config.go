@@ -20,14 +20,14 @@ func Read() (Config, error) {
 		return Config{}, fmt.Errorf("error getting config file path: %w", err)
 	}
 
-	data, err := os.ReadFile(configFilePath)
+	file, err := os.Open(configFilePath)
 	if err != nil {
 		return Config{}, err
 	}
 
 	var config Config
-	err = json.Unmarshal(data, &config)
-	if err != nil {
+	decoder := json.NewDecoder(file)
+	if err := decoder.Decode(&config); err != nil {
 		return Config{}, err
 	}
 
@@ -36,7 +36,6 @@ func Read() (Config, error) {
 
 func (c *Config) SetUser(userName string) error {
 	c.CurrentUserName = userName
-
 	return write(*c)
 }
 
@@ -56,13 +55,13 @@ func write(config Config) error {
 		return fmt.Errorf("error getting config file path: %w", err)
 	}
 
-	f, err := os.Create(configFilePath)
+	file, err := os.Create(configFilePath)
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer file.Close()
 
-	encoder := json.NewEncoder(f)
+	encoder := json.NewEncoder(file)
 	if err := encoder.Encode(config); err != nil {
 		return err
 	}
