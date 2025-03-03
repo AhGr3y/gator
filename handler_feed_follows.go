@@ -67,7 +67,7 @@ func handlerFollowing(s *state, cmd command) error {
 		return nil
 	}
 
-	fmt.Printf("Found %v feeds:\n", len(feedFollows))
+	fmt.Printf("Found %v feed(s):\n", len(feedFollows))
 	for _, feedFollow := range feedFollows {
 		dbFeed, err := s.db.GetFeedByID(context.Background(), feedFollow.FeedID)
 		if err != nil {

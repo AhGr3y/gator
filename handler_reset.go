@@ -11,7 +11,7 @@ func handlerReset(s *state, cmd command) error {
 		return err
 	}
 
-	fmt.Println("Delete users successful!")
+	fmt.Println("User database reset successful!")
 
 	return nil
 }
