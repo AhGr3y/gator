@@ -46,3 +46,35 @@ func handlerFollow(s *state, cmd command) error {
 
 	return nil
 }
+
+func handlerFollowing(s *state, cmd command) error {
+	if len(cmd.args) > 0 {
+		return errors.New("command 'following' does not take any arguments")
+	}
+
+	dbUser, err := s.db.GetUser(context.Background(), s.config.CurrentUserName)
+	if err != nil {
+		return fmt.Errorf("error fetching user by name: %w", err)
+	}
+
+	feedFollows, err := s.db.GetFeedFollowsForUser(context.Background(), dbUser.ID)
+	if err != nil {
+		return fmt.Errorf("error fetching feed follows for user: %w", err)
+	}
+
+	if len(feedFollows) == 0 {
+		fmt.Println("No record found.")
+		return nil
+	}
+
+	fmt.Printf("Found %v feeds:\n", len(feedFollows))
+	for _, feedFollow := range feedFollows {
+		dbFeed, err := s.db.GetFeedByID(context.Background(), feedFollow.FeedID)
+		if err != nil {
+			return fmt.Errorf("error fetching feed by id: %w", err)
+		}
+		fmt.Printf(" * %v\n", dbFeed.Name)
+	}
+
+	return nil
+}
