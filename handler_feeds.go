@@ -10,14 +10,9 @@ import (
 	"github.com/google/uuid"
 )
 
-func handlerAddFeed(s *state, cmd command) error {
+func handlerAddFeed(s *state, cmd command, dbUser database.User) error {
 	if len(cmd.args) < 2 {
 		return errors.New("missing arguments: Usage: gator addFeed <feed name> <feed url>")
-	}
-
-	dbUser, err := s.db.GetUser(context.Background(), s.config.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("error getting user: %w", err)
 	}
 
 	feedParams := database.CreateFeedParams{

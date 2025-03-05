@@ -12,7 +12,7 @@ import (
 
 // handlerFollow - takes a single url argument and creates a new feed follow record
 // for the current user. It prints the name of the feed and the current user.
-func handlerFollow(s *state, cmd command) error {
+func handlerFollow(s *state, cmd command, dbUser database.User) error {
 	if len(cmd.args) == 0 {
 		return errors.New("missing argument: Usage: gator follow <feed url>")
 	}
@@ -20,11 +20,6 @@ func handlerFollow(s *state, cmd command) error {
 	dbFeed, err := s.db.GetFeedByURL(context.Background(), cmd.args[0])
 	if err != nil {
 		return fmt.Errorf("error fetching feed by url: %w", err)
-	}
-
-	dbUser, err := s.db.GetUser(context.Background(), s.config.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("error fetching user by name: %w", err)
 	}
 
 	feedFollowParams := database.CreateFeedFollowParams{
@@ -47,14 +42,9 @@ func handlerFollow(s *state, cmd command) error {
 	return nil
 }
 
-func handlerFollowing(s *state, cmd command) error {
+func handlerFollowing(s *state, cmd command, dbUser database.User) error {
 	if len(cmd.args) > 0 {
 		return errors.New("command 'following' does not take any arguments")
-	}
-
-	dbUser, err := s.db.GetUser(context.Background(), s.config.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("error fetching user by name: %w", err)
 	}
 
 	feedFollows, err := s.db.GetFeedFollowsForUser(context.Background(), dbUser.ID)
@@ -75,6 +65,30 @@ func handlerFollowing(s *state, cmd command) error {
 		}
 		fmt.Printf(" * %v\n", dbFeed.Name)
 	}
+
+	return nil
+}
+
+func handlerUnfollow(s *state, cmd command, dbUser database.User) error {
+	if len(cmd.args) != 1 {
+		return errors.New("invalid argument. Usage: gator %s <feed url>")
+	}
+
+	dbFeed, err := s.db.GetFeedByURL(context.Background(), cmd.args[0])
+	if err != nil {
+		return fmt.Errorf("failed to fetch feed: %w", err)
+	}
+
+	params := database.DeleteFeedFollowForUserParams{
+		UserID: dbUser.ID,
+		FeedID: dbFeed.ID,
+	}
+
+	if err := s.db.DeleteFeedFollowForUser(context.Background(), params); err != nil {
+		return fmt.Errorf("failed to unfollow: %w", err)
+	}
+
+	fmt.Printf("Unfollowed '%s' successfully!\n", dbFeed.Name)
 
 	return nil
 }
