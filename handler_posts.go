@@ -43,8 +43,10 @@ func handlerBrowse(s *state, cmd command) error {
 
 	fmt.Printf("Retrieved %v post(s):\n", len(posts))
 	for _, post := range posts {
+		fmt.Println("")
 		fmt.Printf(" * Title: %v\n", post.Title)
 		fmt.Printf(" * Description: %v\n", post.Description)
+		fmt.Printf(" * Published At: %v\n", post.PublishedAt)
 	}
 
 	return nil
