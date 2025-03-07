@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
@@ -12,7 +11,8 @@ import (
 
 func handlerAddFeed(s *state, cmd command, dbUser database.User) error {
 	if len(cmd.args) < 2 {
-		return errors.New("missing arguments: Usage: gator addFeed <feed name> <feed url>")
+		fmt.Println("missing arguments: Usage: gator addFeed <feed name> <feed url>")
+		return nil
 	}
 
 	feedParams := database.CreateFeedParams{
