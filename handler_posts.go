@@ -8,7 +8,7 @@ import (
 	"github.com/AhGr3y/gator/internal/database"
 )
 
-func handlerBrowse(s *state, cmd command) error {
+func handlerBrowse(s *state, cmd command, user database.User) error {
 	if len(cmd.args) > 1 {
 		fmt.Printf("Usage: gator %v [<post limit>]\n", cmd.name)
 		return nil
@@ -22,12 +22,6 @@ func handlerBrowse(s *state, cmd command) error {
 			return nil
 		}
 		limit = converted
-	}
-
-	user, err := s.db.GetUser(context.Background(), s.config.CurrentUserName)
-	if err != nil {
-		fmt.Printf("failed to get user from database: %v\n", err)
-		return nil
 	}
 
 	params := database.GetPostsForUserParams{
